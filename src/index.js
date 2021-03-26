@@ -49,10 +49,10 @@ const order= (menuName) => {
 
     Promise.allSettled(menuName.map(cooking))
     .then((result) => {
-        const a = result.every(isOrderReady)
-        if(a) {
+        const orderComplete = result.every(isOrderReady)
+        if(orderComplete) {
 
-            console.log(a);
+            console.log(orderComplete);
             console.log(result);
         } 
     })
