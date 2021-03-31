@@ -34,33 +34,30 @@ const menu = {
         }
     ]
 };
+const order = async (menuName) => {
 
-const order= (menuName) => {
+    const cooking = ({name, time}) =>
 
-    const cooking = ({name, time}) => 
-        
         new Promise((resolve, reject) => {
+
             const condition = +Math.random().toFixed();
 
-            setTimeout(() => { 
-                condition ? resolve(name) : reject(name)
+            setTimeout(() => {
+                condition ? resolve(name) : reject(name);
             }, time);
         });
 
-    Promise.allSettled(menuName.map(cooking))
-    .then((result) => {
-        const orderComplete = result.every(isOrderReady)
-        if(orderComplete) {
+    const readyOrder = await Promise.allSettled(menuName.map(cooking));
 
-            console.log(orderComplete);
-            console.log(result);
-        } 
-    })
-    
-};
-function isOrderReady(result) {
+    if (readyOrder.every((a) => a.status === 'fulfilled')) {
+        readyOrder.complete = true;
 
-    return result.status === 'fulfilled'
+        return readyOrder;
+    } else {
+        readyOrder.complete = false;
+
+        return readyOrder;
+    }
 };
 
 const one = order(menu.burger);
@@ -70,24 +67,17 @@ const four = order(menu.burger);
 const five = order(menu.hotDog);
 
 
+const resultOrderArray = [one, two, three, four, five];
 
+Promise.allSettled(resultOrderArray)
+    .then(results => {
+        const completedOrders = results.filter(a => a.value.complete === true);
 
+        if (completedOrders.length >= 2 ) {
 
+            console.log(completedOrders);
+        } else {
 
-
-/*Promise.allSettled([one, two, three, four, five])
-.then(result => {
-
-    function isOrderReady(result) {
-
-        return result.status === 'fulfilled'
-    };
-    console.log(result);
-    console.log(result.every(isOrderReady))
-})
-    
-.catch(error => {
-        
-    console.log(error.message)
-        
-})*/
+            console.log('many orders  are failed');
+        }
+    });
